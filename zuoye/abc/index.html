@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>加载更多</title>
+    <style>
+        ul ,li{
+            margin: 0;
+            padding: 0;
+        }
+        #ct li{
+            list-style: none;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        .btn{
+            display: block;
+            height: 40px;
+            line-height: 40px;
+            width: 70px;
+            border: 1px solid cornflowerblue;
+            border-radius: 3px;
+            text-align: center;
+            text-decoration: none;
+            color: deeppink;
+            margin: 10px auto;
+        }
+        .btn:hover{
+            background: green;
+            color: #fff;
+        }
+
+    </style>
+</head>
+<body>
+<ul id="ct"></ul>
+<a href="#" class="btn" id="load-more">加载更多</a>
+
+</body>
+<script>
+    var ct = document.querySelector('#ct')
+    var btn = document.querySelector('#load-more')
+    var curIndex = 0
+    var len = 5
+    var isloading = false
+
+btn.onclick=function (e) {
+    e.preventDefault()
+
+    if(isloading){
+        return
+        }
+
+    isloading = true
+    ajax('/loadMore',{
+        idx:curIndex,
+        len:len
+    },
+    function (data) {
+        appendData(data)
+        isloading = false
+        curIndex += len
+        console.log(curIndex)
+    }
+    )
+}
+
+
+function ajax(url,json,onSuccess,onError) {
+    var xhr = new XMLHttpRequest()
+    var arr = []
+    for(key in json){
+        arr.push(key + '=' + json[key])
+    }
+    url += '?' + arr.join('&')
+    xhr.open('get',url)
+    xhr.send()
+
+    xhr.onload = function () {
+        if((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304){
+            onSuccess(JSON.parse(this.response))
+        }else{
+            onError&&onError()
+        }
+    }
+    }
+
+
+    function appendData(data) {
+        for(var i=0;i<data.length;i++){
+            var child = document.createElement('li')
+            child.innerText=data[i]
+            ct.appendChild(child)
+        }
+
+
+    }
+
+
+
+
+
+</script>
+</html>
